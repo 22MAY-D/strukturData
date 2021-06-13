@@ -1,0 +1,2 @@
+# strukturData
+C++ Rumah Sakit
