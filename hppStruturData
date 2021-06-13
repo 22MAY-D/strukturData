@@ -1,0 +1,291 @@
+#ifndef UTIL_HPP
+#define UTIL_HPP
+#include<vector>
+#include<iostream>
+
+namespace fp
+{
+   
+    class User
+    {
+        public:
+            std::string id;
+            std::string nama_lengkap;
+            int usia;
+
+            virtual void print_data(){std::cout << "User is being accessed\n";}
+    };
+
+    class Pengurus : public User
+    {
+        public:
+            std::string jabatan;
+
+            Pengurus(){} // default constructor untuk menghindari bug
+            Pengurus(std::string nama_lengkap,int usia, std::string jabatan)
+            {
+                this->nama_lengkap = nama_lengkap;
+                this->usia = usia;
+                this->jabatan = jabatan;
+                id = "pengurus" + std::to_string( ++jumlah_pengurus );
+            }
+
+            virtual void print_data()
+            {
+                std::cout << "ID Pegawai : " << id << std::endl;
+                std::cout << "Jabatan : " << jabatan << std::endl;
+                std::cout << "Nama : " << nama_lengkap << std::endl;
+                std::cout << "Usia : " << usia << std::endl;
+            }
+
+        private:
+            static int jumlah_pengurus;
+    };
+    int Pengurus::jumlah_pengurus = 0;
+
+    // Jika sebuah perusahaan sedang mengurangi staff untuk mengurangi biaya operasional. Staff yang paling baru lebih mungkin dipecat karena staff terbaru lebih sedikit pengalamannya
+    class Staff : public Pengurus
+    {
+        public:
+            std::string hari_kerja;
+
+            Staff(std::string nama_lengkap, int usia, std::string jabatan, std::string hari_kerja)
+            {
+                this->nama_lengkap = nama_lengkap;
+                this->usia = usia;
+                this->jabatan = jabatan;
+                this->hari_kerja = hari_kerja;
+                id = "staff" + std::to_string( ++jumlah_staff );
+            }
+            /*
+            ~Staff()
+            {
+                jumlah_staff--;
+            }
+            */
+            void print_data()
+            {
+                std::cout << "ID Staff : " << id << std::endl;
+                std::cout << "Nama : " << nama_lengkap << std::endl;
+                std::cout << "Usia : " << usia << std::endl;
+                std::cout << "Jabatan : " << jabatan << std::endl;
+                std::cout << "Hari kerja : " << hari_kerja << std::endl;
+            }
+        
+        private:
+            static int jumlah_staff;
+    };
+    int Staff::jumlah_staff = 0;
+    
+    class Pasien : public User
+    {
+        public:
+            std::string gol_darah;
+
+            Pasien(std::string nama_lengkap, int usia, std::string gol_darah)
+            {
+                this->nama_lengkap = nama_lengkap;
+                this->usia = usia;
+                this->gol_darah = gol_darah;
+                id = "pasien" + std::to_string( ++jumlah_pasien );
+            }
+
+            void print_data()
+            {
+                std::cout << "ID Pasien : " << id << std::endl;
+                std::cout << "Nama : " << nama_lengkap << std::endl;
+                std::cout << "Usia : " << usia << std::endl;
+                std::cout << "Golongan darah : " << gol_darah << std::endl;
+            }
+
+        private:
+            static int jumlah_pasien;
+    };
+    int Pasien::jumlah_pasien = 0;
+
+    class Tree_pengurus
+    {
+        public:
+            Pengurus data;
+            std::vector<Tree_pengurus> children;
+
+            Tree_pengurus(std::string nama_lengkap,int usia, std::string jabatan)
+            {
+                Pengurus data_baru(nama_lengkap, usia, jabatan);
+                data = data_baru;
+                //data.nama_lengkap = nama_lengkap;
+                //data.jabatan = jabatan;
+            }
+            
+            void add_child(std::string nama_lengkap, int usia, std::string jabatan)
+            {
+                //Tree_pengurus tree_baru(nama_lengkap, usia, jabatan);
+                children.push_back(Tree_pengurus(nama_lengkap, usia, jabatan));
+            }
+
+            // hapus simpul sesuai ID. 
+            void remove_child(std::string id)
+            {
+                for(int i = 0; children.size(); i++)
+                {
+                    if(children[i].data.id == id)
+                    {
+                        children.erase(children.begin() + i);
+                        return;
+                    }
+                }
+            }
+
+            void print_tree(const int depth = 0)
+            {
+                for(int i = 0; i < depth; i++)
+                {
+                    if(i != depth - 1) std::cout << "   ";
+                    else std::cout << "|--";
+                }
+                std::cout << data.id << std::endl;
+
+                for(int i = 0; i < children.size(); i++)
+                {
+                    children[i].print_tree(depth + 1);
+                }
+            }
+
+            void traverse()
+            {
+                while (true)
+                {
+                    std::string pilihan;
+                    std::string nama_lengkap;
+                    int usia;
+                    std::string jabatan;
+                    int tindakan;
+                    
+                    while(true)
+                    {
+                        std::cout << "Anda berada di sini\n|\nV" << std::endl;
+                        print_tree();
+                        std::cout << "\n";
+                        data.print_data();
+
+                        std::cout << "\n1. Telusuri tree" << std::endl;
+                        std::cout << "2. Buat anak baru" << std::endl;
+                        std::cout << "3. Ubah data" << std::endl;
+                        std::cout << "4. Ubah data anak" << std::endl;
+                        std::cout << "5. Hapus anak" << std::endl;
+                        std::cout << "9. Kembali" << std::endl;
+                        std::cin >> tindakan;
+
+                        switch (tindakan)
+                        {
+                        case 1:
+                            std::cout << "Pilih node yang ingin ditelusuri : ";
+                            std::cin >> pilihan;
+                            
+                            for(int i = 0; i < children.size(); i++)
+                            {
+                                if(children[i].data.id == pilihan)
+                                {
+                                    children[i].traverse(); // Tree dapat ditelusuri secara rekursif
+                                    break;
+                                }
+                            }
+                            break;
+                        
+                        case 2:
+                            fflush(stdin);
+                            std::cout << "Masukkan nama lengkap : ";
+                            std::getline(std::cin, nama_lengkap);
+                            fflush(stdin);
+                            std::cout << "Masukkan usia : ";
+                            std::cin >> usia;
+                            fflush(stdin);
+                            std::cout << "Masukkan jabatan : ";
+                            std::getline(std::cin, jabatan);
+
+                            add_child(nama_lengkap, usia, jabatan);
+                            break;
+
+                        case 3:
+                            fflush(stdin);
+                            std::cout << "Masukkan nama lengkap : ";
+                            std::getline(std::cin, nama_lengkap);
+                            fflush(stdin);
+                            std::cout << "Masukkan usia : ";
+                            std::cin >> usia;
+                            fflush(stdin);
+                            std::cout << "Masukkan jabatan : ";
+                            std::getline(std::cin, jabatan);
+
+                            data.nama_lengkap = nama_lengkap;
+                            data.usia = usia;
+                            data.jabatan = jabatan;
+                            break;
+
+                        case 4:
+                            std::cout << "Masukkan ID anak yang ingin diubah : ";
+                            std::cin >> pilihan;
+                            fflush(stdin);
+                            std::cout << "Masukkan nama lengkap : ";
+                            std::getline(std::cin, nama_lengkap);
+                            fflush(stdin);
+                            std::cout << "Masukkan usia : ";
+                            std::cin >> usia;
+                            fflush(stdin);
+                            std::cout << "Masukkan jabatan : ";
+                            std::getline(std::cin, jabatan);
+
+                            for(int i = 0; i < children.size(); i++)
+                            {
+                                if(children[i].data.id == pilihan)
+                                {
+                                    children[i].data.nama_lengkap = nama_lengkap;
+                                    children[i].data.usia = usia;
+                                    children[i].data.jabatan = jabatan;
+                                    break;
+                                }
+                            }
+                            break;
+                        
+                        case 5:
+                            std::cout << "Masukkan ID dari anak yang ingin dihapus : ";
+                            std::cin >> pilihan;
+                            remove_child(pilihan);
+                            break;
+
+                        default:
+                            return;
+                        }
+
+                    }
+
+                }
+            }
+    };
+
+    class Persediaan
+    {
+        public:
+            std::string jenis;
+            int jumlah;
+            std::string id;
+
+            Persediaan(std::string jenis, int jumlah)
+            {
+                this->jenis = jenis;
+                this->jumlah = jumlah;
+                id = "supply" + std::to_string( ++count );
+            }
+
+            void print_data()
+            {
+                std::cout <<"ID : " << id << std::endl;
+                std::cout << jenis << " : " << jumlah << std::endl;
+            }
+        private:
+            static int count;
+    };
+    int Persediaan::count = 0;
+}
+
+#endif
